@@ -191,7 +191,7 @@ router.get("/image", async (req, res) => {
 
     context.font = "20px Arial";
     context.fillStyle = "#000000";
-    context.fillText(shlokText, 30, 50);
+    context.fillText(shlokText, 50, 50);
 
     res.setHeader("Content-Type", "image/png");
     canvas.createPNGStream().pipe(res);

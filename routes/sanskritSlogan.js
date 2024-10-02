@@ -119,7 +119,7 @@ router.get("/slogan/image", async (req, res) => {
 
     context.font = "20px Arial";
     context.fillStyle = "#000000";
-    context.fillText(shlokText, 10, 50);
+    context.fillText(shlokText, 50, 50);
 
     res.setHeader("Content-Type", "image/png");
     canvas.createPNGStream().pipe(res);
