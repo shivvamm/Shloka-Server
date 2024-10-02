@@ -109,7 +109,7 @@ router.get("/slogan/image", async (req, res) => {
     const shlokText = shlok["Sloka"];
 
     const width = 800;
-    const height = 400;
+    const height = 80;
     const canvas = createCanvas(width, height);
     const context = canvas.getContext("2d");
 

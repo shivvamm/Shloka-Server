@@ -181,7 +181,7 @@ router.get("/image", async (req, res) => {
     data = gitaShloks[chapter][verse];
     shlokText = data["Shloka"];
     const width = 800;
-    const height = 400;
+    const height = 80;
     const canvas = createCanvas(width, height);
     const context = canvas.getContext("2d");
 
@@ -191,7 +191,7 @@ router.get("/image", async (req, res) => {
 
     context.font = "20px Arial";
     context.fillStyle = "#000000";
-    context.fillText(shlokText, 10, 50);
+    context.fillText(shlokText, 30, 50);
 
     res.setHeader("Content-Type", "image/png");
     canvas.createPNGStream().pipe(res);
