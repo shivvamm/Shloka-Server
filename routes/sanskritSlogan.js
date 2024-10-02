@@ -1,8 +1,16 @@
 const express = require("express");
 const router = express.Router();
+const path = require("path");
 const sanskritSlogan = require("./../public/shlokas/shloksvalid");
 const { getDataFromCache, setDataInCache } = require("../utils/redisCache");
-const { createCanvas, loadImage } = require("canvas");
+const { registerFont, createCanvas } = require("canvas");
+registerFont(
+  path.join(
+    __dirname,
+    "../public/fonts/NotoSansDevanagari-VariableFont_wdth,wght.ttf"
+  ),
+  { family: "Noto Sans Devanagari" }
+);
 
 /* GET Single  Random Sanskrit Slogan  */
 router.get("/slogan/random", async (req, res) => {
@@ -105,12 +113,13 @@ router.get("/slogan/image", async (req, res) => {
     const canvas = createCanvas(width, height);
     const context = canvas.getContext("2d");
 
+    context.font = '20px "Noto Sans Devanagari"';
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, width, height);
 
     context.font = "20px Arial";
     context.fillStyle = "#000000";
-    context.fillText(shlokText, 20, 50);
+    context.fillText(shlokText, 10, 50);
 
     res.setHeader("Content-Type", "image/png");
     canvas.createPNGStream().pipe(res);

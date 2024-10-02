@@ -1,10 +1,16 @@
 var express = require("express");
 var router = express.Router();
+const path = require("path");
 const gitaShloks = require("./../public/shlokas/gitashloks.json");
 const { getDataFromCache, setDataInCache } = require("../utils/redisCache");
-const { createCanvas, loadImage } = require("canvas");
-
-const generateSvg = require("../utils/shlokToSvg");
+const { registerFont, createCanvas } = require("canvas");
+registerFont(
+  path.join(
+    __dirname,
+    "../public/fonts/NotoSansDevanagari-VariableFont_wdth,wght.ttf"
+  ),
+  { family: "Noto Sans Devanagari" }
+);
 
 /* GET Bhagavad_gita shoka by chapter no and verse  */
 router.get("/shloka", async (req, res) => {
@@ -179,16 +185,14 @@ router.get("/image", async (req, res) => {
     const canvas = createCanvas(width, height);
     const context = canvas.getContext("2d");
 
-   
+    context.font = '20px "Noto Sans Devanagari"';
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, width, height);
 
-    
     context.font = "20px Arial";
     context.fillStyle = "#000000";
-    context.fillText(shlokText, 20, 50);
+    context.fillText(shlokText, 10, 50);
 
-   
     res.setHeader("Content-Type", "image/png");
     canvas.createPNGStream().pipe(res);
   } catch (e) {
