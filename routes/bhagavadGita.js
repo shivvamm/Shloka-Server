@@ -185,13 +185,18 @@ router.get("/image", async (req, res) => {
     const canvas = createCanvas(width, height);
     const context = canvas.getContext("2d");
 
-    context.font = '20px "Noto Sans Devanagari"';
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, width, height);
 
-    context.font = "20px Arial";
+    context.font = '20px "Noto Sans Devanagari"';
+    const textWidth = context.measureText(shlokText).width;
+    const textHeight = 20;
+
+    const x = (width - textWidth) / 2;
+    const y = (height + textHeight / 2) / 2;
+
     context.fillStyle = "#000000";
-    context.fillText(shlokText, 50, 50);
+    context.fillText(shlokText, x, y);
 
     res.setHeader("Content-Type", "image/png");
     canvas.createPNGStream().pipe(res);
