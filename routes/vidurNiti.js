@@ -1,7 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const path = require("path");
 const vidurNitiShloks = require('./../public/shlokas/shloksvalid')
 const { getDataFromCache, setDataInCache } = require('../utils/redisCache')
+const { registerFont, createCanvas } = require("canvas");
+registerFont(
+  path.join(
+    __dirname,
+    "../public/fonts/NotoSansDevanagari-VariableFont_wdth,wght.ttf"
+  ),
+  { family: "Noto Sans Devanagari" }
+);
 
 /* GET Single  Random  Vidur Niti Slokas */
 router.get('/maxims/random', async (req, res,) => {
@@ -87,5 +96,95 @@ router.get('/all', async (req, res) => {
   }
 });
 
+/* GET Vidur Niti random maxim image with beautiful bhagwa styling */
+router.get("/maxims/image", async (req, res) => {
+  try {
+    const indexNo = Math.floor(Math.random() * (vidurNitiShloks["Vidur Niti Slokas"].length - 1) + 1);
+    const shlok = vidurNitiShloks["Vidur Niti Slokas"][indexNo];
+    const shlokText = shlok["Sloka"];
+
+    const width = 1200;
+    const height = 300;
+    const canvas = createCanvas(width, height);
+    const context = canvas.getContext("2d");
+
+    // Bhagwa gradient background
+    const gradient = context.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, "#FF9933"); // Bhagwa orange
+    gradient.addColorStop(0.5, "#FF7700"); // Deeper orange
+    gradient.addColorStop(1, "#FF5500"); // Rich saffron
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, width, height);
+
+    // Add subtle pattern/texture
+    context.fillStyle = "rgba(255, 255, 255, 0.1)";
+    for (let i = 0; i < width; i += 40) {
+      for (let j = 0; j < height; j += 40) {
+        context.fillRect(i, j, 2, 2);
+      }
+    }
+
+    // Main text styling
+    context.font = '28px "Noto Sans Devanagari"';
+    context.fillStyle = "#FFFFFF";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    
+    // Add text shadow
+    context.shadowColor = "rgba(0, 0, 0, 0.5)";
+    context.shadowOffsetX = 2;
+    context.shadowOffsetY = 2;
+    context.shadowBlur = 4;
+
+    // Wrap text if too long
+    const maxWidth = width - 100;
+    const words = shlokText.split(' ');
+    let line = '';
+    let y = height / 2;
+    
+    if (context.measureText(shlokText).width > maxWidth) {
+      const lines = [];
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = context.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+          lines.push(line);
+          line = words[n] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+      lines.push(line);
+      
+      const lineHeight = 35;
+      y = (height - (lines.length - 1) * lineHeight) / 2;
+      
+      lines.forEach((line, index) => {
+        context.fillText(line, width / 2, y + index * lineHeight);
+      });
+    } else {
+      context.fillText(shlokText, width / 2, y);
+    }
+
+    // Add decorative elements
+    context.shadowColor = "transparent";
+    context.fillStyle = "rgba(255, 255, 255, 0.3)";
+    context.font = "20px serif";
+    context.textAlign = "left";
+    context.fillText("॥ विदुर नीति ॥", 30, 40);
+    context.textAlign = "right";
+    context.fillText("महात्मा विदुर", width - 30, height - 30);
+
+    res.setHeader("Content-Type", "image/png");
+    canvas.createPNGStream().pipe(res);
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
 
 module.exports = router;

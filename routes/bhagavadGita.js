@@ -171,7 +171,7 @@ router.get("/random/by", async (req, res) => {
   }
 });
 
-/* GET Bhagavad_gita random shoka svg  */
+/* GET Bhagavad_gita random shoka image with beautiful bhagwa styling */
 router.get("/image", async (req, res) => {
   try {
     let chapter = Math.floor(Math.random() * (18 - 1) + 1);
@@ -180,23 +180,79 @@ router.get("/image", async (req, res) => {
     );
     data = gitaShloks[chapter][verse];
     shlokText = data["Shloka"];
-    const width = 800;
-    const height = 80;
+    
+    const width = 1200;
+    const height = 300;
     const canvas = createCanvas(width, height);
     const context = canvas.getContext("2d");
 
-    context.fillStyle = "#ffffff";
+    // Bhagwa gradient background
+    const gradient = context.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, "#FF9933"); // Bhagwa orange
+    gradient.addColorStop(0.5, "#FF7700"); // Deeper orange
+    gradient.addColorStop(1, "#FF5500"); // Rich saffron
+    context.fillStyle = gradient;
     context.fillRect(0, 0, width, height);
 
-    context.font = '20px "Noto Sans Devanagari"';
-    const textWidth = context.measureText(shlokText).width;
-    const textHeight = 20;
+    // Add subtle pattern/texture
+    context.fillStyle = "rgba(255, 255, 255, 0.1)";
+    for (let i = 0; i < width; i += 40) {
+      for (let j = 0; j < height; j += 40) {
+        context.fillRect(i, j, 2, 2);
+      }
+    }
 
-    const x = (width - textWidth) / 2;
-    const y = (height + textHeight / 2) / 2;
+    // Main text styling
+    context.font = '28px "Noto Sans Devanagari"';
+    context.fillStyle = "#FFFFFF";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    
+    // Add text shadow
+    context.shadowColor = "rgba(0, 0, 0, 0.5)";
+    context.shadowOffsetX = 2;
+    context.shadowOffsetY = 2;
+    context.shadowBlur = 4;
 
-    context.fillStyle = "#000000";
-    context.fillText(shlokText, x, y);
+    // Wrap text if too long
+    const maxWidth = width - 100;
+    const words = shlokText.split(' ');
+    let line = '';
+    let y = height / 2;
+    
+    if (context.measureText(shlokText).width > maxWidth) {
+      const lines = [];
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = context.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+          lines.push(line);
+          line = words[n] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+      lines.push(line);
+      
+      const lineHeight = 35;
+      y = (height - (lines.length - 1) * lineHeight) / 2;
+      
+      lines.forEach((line, index) => {
+        context.fillText(line, width / 2, y + index * lineHeight);
+      });
+    } else {
+      context.fillText(shlokText, width / 2, y);
+    }
+
+    // Add decorative elements
+    context.shadowColor = "transparent";
+    context.fillStyle = "rgba(255, 255, 255, 0.3)";
+    context.font = "20px serif";
+    context.textAlign = "left";
+    context.fillText("॥ श्रीमद्भगवद्गीता ॥", 30, 40);
+    context.textAlign = "right";
+    context.fillText(`अध्याय ${chapter}, श्लोक ${verse}`, width - 30, height - 30);
 
     res.setHeader("Content-Type", "image/png");
     canvas.createPNGStream().pipe(res);
