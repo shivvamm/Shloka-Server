@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: shloka-server
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18.20.4
